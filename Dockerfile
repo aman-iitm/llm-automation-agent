@@ -1,38 +1,11 @@
-# FROM python:3.12-slim-bookworm
-
-# # Install dependencies
-# RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
-
-# # Download and install uv
-# ADD https://astral.sh/uv/install.sh /uv-installer.sh
-# RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# # Install FastAPI and Uvicorn
-# RUN pip install fastapi uvicorn
-
-# # Ensure the installed binary is on the `PATH`
-# ENV PATH="/root/.local/bin:$PATH"
-
-# # Set up the application directory
-# WORKDIR /app
-
-# # Copy application files
-# COPY app.py /app
-
-# # Explicitly set the correct binary path and use `sh -c`
-# CMD ["/root/.local/bin/uv", "run", "app.py"]
-
 FROM python:3.12-slim-bookworm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
 # Download and install uv
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Install FastAPI and Uvicorn
-RUN pip install fastapi uvicorn
 
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin:$PATH"
@@ -40,8 +13,22 @@ ENV PATH="/root/.local/bin:$PATH"
 # Set up the application directory
 WORKDIR /app
 
-# Copy **all** project files
+# Copy requirements.txt first (for caching layers)
+COPY requirements.txt /app/requirements.txt
+
+# Install Python dependencies properly
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application files
 COPY . /app
 
-# Explicitly set the correct binary path and use `sh -c`
-CMD ["/root/.local/bin/uv", "run", "app.py"]
+# Expose Flask API port (if required)
+EXPOSE 8000
+
+# Set environment variables for Flask & FastAPI
+ENV FLASK_APP=tasksB.py
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV FLASK_RUN_PORT=8000
+
+# Start FastAPI (change if Flask should run instead)
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

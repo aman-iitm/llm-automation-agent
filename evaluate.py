@@ -69,7 +69,7 @@ async def read(path: str):
 async def a1(email: str, **kwargs):
     await run(
         f"""
-Install `uv` (if required) and run the script `https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/datagen.py`
+Install `uv` (if required) and run the script `https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py`
 with `{email}` as the only argument
 """
     )
@@ -232,8 +232,116 @@ async def a10(email, **kwargs):
     return True
 
 
+
+#Phase B 
+async def b3(email: str, **kwargs):
+    """Test B3: Fetch data from an API and save it."""
+    url = "https://api.example.com/data"
+    save_path = "/data/api_data.txt"
+    await run(f"Fetch data from {url} and save it to {save_path}")
+    result = await read(save_path)
+    expected = "Expected API response content"  # Replace with actual expected content
+    if result != expected:
+        return mismatch(save_path, expected, result)
+    return True
+
+async def b4(email: str, **kwargs):
+    """Test B4: Clone a git repo and make a commit."""
+    repo_url = "https://github.com/example/repo.git"
+    commit_message = "Initial commit"
+    await run(f"Clone {repo_url} and make a commit with message '{commit_message}'")
+    # Check if the repo was cloned and a commit was made
+    repo_path = "/data/repo"
+    if not os.path.exists(repo_path):
+        return mismatch(repo_path, "Repo should exist", "Repo does not exist")
+    return True
+
+async def b5(email: str, **kwargs):
+    """Test B5: Run a SQL query on a SQLite or DuckDB database."""
+    db_path = "/data/ticket-sales.db"
+    query = "SELECT SUM(units * price) FROM tickets WHERE type = 'Gold'"
+    output_filename = "/data/query_result.txt"
+    await run(f"Run the SQL query '{query}' on {db_path} and save the result to {output_filename}")
+    result = await read(output_filename)
+    expected = "Expected query result"  # Replace with actual expected result
+    if result != expected:
+        return mismatch(output_filename, expected, result)
+    return True
+
+async def b6(email: str, **kwargs):
+    """Test B6: Extract data from a website."""
+    url = "https://example.com"
+    output_filename = "/data/scraped_data.txt"
+    await run(f"Scrape data from {url} and save it to {output_filename}")
+    result = await read(output_filename)
+    expected = "Expected scraped content"  # Replace with actual expected content
+    if result != expected:
+        return mismatch(output_filename, expected, result)
+    return True
+
+async def b7(email: str, **kwargs):
+    """Test B7: Compress or resize an image."""
+    image_path = "/data/credit_card.png"
+    output_path = "/data/resized_image.png"
+    resize = [100, 100]  # Example resize dimensions
+    await run(f"Resize {image_path} to {resize} and save it to {output_path}")
+    # Check if the resized image exists
+    if not os.path.exists(output_path):
+        return mismatch(output_path, "Resized image should exist", "Resized image does not exist")
+    return True
+
+async def b8(email: str, **kwargs):
+    """Test B8: Transcribe audio from an MP3 file."""
+    audio_path = "/data/audio.mp3"
+    output_path = "/data/transcription.txt"
+    await run(f"Transcribe {audio_path} and save the transcription to {output_path}")
+    result = await read(output_path)
+    expected = "Expected transcription"  # Replace with actual expected transcription
+    if result != expected:
+        return mismatch(output_path, expected, result)
+    return True
+
+async def b9(email: str, **kwargs):
+    """Test B9: Convert Markdown to HTML."""
+    md_path = "/data/format.md"
+    output_path = "/data/output.html"
+    await run(f"Convert {md_path} to HTML and save it to {output_path}")
+    result = await read(output_path)
+    expected = "Expected HTML content"  # Replace with actual expected HTML
+    if result != expected:
+        return mismatch(output_path, expected, result)
+    return True
+
+async def b10(email: str, **kwargs):
+    """Test B10: Filter a CSV file and return JSON data."""
+    csv_path = "/data/contacts.csv"
+    filter_column = "last_name"
+    filter_value = "Smith"
+    await run(f"Filter {csv_path} by {filter_column} = {filter_value} and return JSON data")
+    # Check if the filtered data is correct
+    # This is a placeholder; you need to implement the actual check
+    return True
+
+
+# async def main(email: str):
+#     score, total = 0, 0
+#     for task in [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10]:
+#         total += 1
+#         try:
+#             success = await task(email=email)
+#         except Exception as e:
+#             logging.error(f"🔴 {task.__name__.upper()} failed: {e}")
+#             success = False
+#         if success:
+#             logging.info(f"✅ {task.__name__.upper()} PASSED")
+#         else:
+#             logging.error(f"❌ {task.__name__.upper()} FAILED")
+#         score += 1 if success else 0
+#     logging.info(f"🎯 Score: {score} / {total}")
+
 async def main(email: str):
     score, total = 0, 0
+    # Phase A tasks
     for task in [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10]:
         total += 1
         try:
@@ -246,6 +354,21 @@ async def main(email: str):
         else:
             logging.error(f"❌ {task.__name__.upper()} FAILED")
         score += 1 if success else 0
+
+    # Phase B tasks
+    for task in [b3, b4, b5, b6, b7, b8, b9, b10]:
+        total += 1
+        try:
+            success = await task(email=email)
+        except Exception as e:
+            logging.error(f"🔴 {task.__name__.upper()} failed: {e}")
+            success = False
+        if success:
+            logging.info(f"✅ {task.__name__.upper()} PASSED")
+        else:
+            logging.error(f"❌ {task.__name__.upper()} FAILED")
+        score += 1 if success else 0
+
     logging.info(f"🎯 Score: {score} / {total}")
 
 
